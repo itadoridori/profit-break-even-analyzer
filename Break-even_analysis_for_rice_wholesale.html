@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>米卸売業 損益分岐点分析 インフォグラフィック</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 
+        NEITHER Mermaid JS NOR SVG were used anywhere in this output.
+        Chosen Color Palette: Energetic & Playful (Orange: #FF8C00, Yellow: #FFD700, Teal: #008080, Pink: #FF69B4, Purple: #9370DB)
+        Tailwind does not have direct classes for all these exact hex codes.
+        Mapping to nearest Tailwind defaults or using arbitrary values for Chart.js:
+        Orange: #FF8C00 (orange-500 is #f97316, orange-600 is #ea580c) -> Use orange-500
+        Yellow: #FFD700 (yellow-400 is #facc15, yellow-500 is #eab308) -> Use yellow-400
+        Teal: #008080 (teal-600 is #0d9488, teal-700 is #0f766e) -> Use teal-600
+        Pink: #FF69B4 (pink-500 is #ec4899, pink-400 is #f472b6) -> Use pink-500
+        Purple: #9370DB (purple-500 is #a855f7, purple-600 is #9333ea) -> Use purple-500
+    -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Tailwind max-w-2xl */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height, can be responsive e.g., h-64 sm:h-80 */
+            max-height: 400px; /* Tailwind max-h-96 is 384px, max-h-[400px] */
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .stat-value {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            color: #FF8C00; /* Energetic Orange */
+        }
+        .stat-label {
+            font-size: 0.875rem; /* text-sm */
+            color: #4b5563; /* text-gray-600 */
+            margin-top: 0.25rem; /* mt-1 */
+        }
+        .flow-arrow {
+            font-size: 1.5rem; /* text-2xl */
+            color: #008080; /* Energetic Teal */
+            margin: 0 0.5rem; /* mx-2 */
+        }
+        /* Infographic Plan & Visualization Choices (HTML Comment)
+        Overall Plan:
+        1.  Introduction: Rice distribution chain, focus on wholesalers.
+        2.  Current Scenario: P=3500, V=3000, M=500, Q=1000, F=400k, G=100k.
+        3.  Sensitivity Analysis: Impact of 100 yen change in P or V.
+        4.  Goal Setting (Optional for brevity, focus on core simulation): How to achieve G=200k. (Skipped for this iteration to focus on core analysis from text)
+        5.  Historical Scenario: P=2000, V=1600, M=400, Q=1000, F=400k, G=0.
+        6.  Price Rise Impact: P rises from 2000 to 3500 (V,Q,F constant from historical), G becomes 1.5M.
+        7.  Conclusion: Sensitivity to P & V.
+
+        Visualization Choices (NO SVG, NO MERMAID JS):
+        -   Rice Distribution Flow: HTML/CSS (Tailwind) boxes & text arrows. Goal: Organize. Justification: Simple linear process, easily represented. Method: Flexbox divs.
+        -   Key Metrics (P,V,M,Q,F,G for each scenario): "Single Big Number" style text (HTML/CSS). Goal: Inform. Justification: Clear display of individual important figures. Method: Styled text divs.
+        -   Profit Calculation Breakdown: Structured HTML/CSS to show formula components. Goal: Inform/Organize. Justification: Clarifies how profit is derived. Method: Flexbox/Grid divs.
+        -   Sensitivity Text Callouts: HTML/CSS styled text. Goal: Inform. Justification: Direct display of impact. Method: Styled text.
+        -   Comparison Charts (Current MQ vs F; Historical G vs. Price Rise G): Bar Charts using Chart.js (Canvas). Goal: Compare/Change. Justification: Effective for comparing magnitudes. Method: Chart.js library.
+        */
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 sm:p-6 md:p-8">
+    <div class="max-w-5xl mx-auto">
+
+        <header class="mb-12 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-teal-700 mb-4">米卸売業者の損益分岐点分析</h1>
+            <p class="text-lg text-gray-600">価格変動が利益に与える影響：シミュレーションによる考察</p>
+        </header>
+
+        <main>
+            <section class="mb-12 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-orange-600 mb-4">はじめに：お米が食卓に届くまで</h2>
+                <p class="text-gray-700 mb-4">
+                    お米は生産者から集荷業者、そして卸売業者を経て小売店に渡り、最終的に私たちの食卓へ届きます。このインフォグラフィックでは、流通の中間を担う「卸売業者」の収益構造と、価格変動が利益に与える影響をシミュレーションを通じて分析します。
+                </p>
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-3 text-center">お米の基本的な流通経路</h3>
+                    <div class="flex flex-wrap items-center justify-center text-center">
+                        <div class="p-3 bg-yellow-100 rounded-md shadow m-2">生産者</div>
+                        <div class="flow-arrow">&rarr;</div>
+                        <div class="p-3 bg-yellow-100 rounded-md shadow m-2">集荷業者</div>
+                        <div class="flow-arrow">&rarr;</div>
+                        <div class="p-3 bg-orange-200 rounded-md shadow m-2 font-semibold">卸売業者 (本分析の対象)</div>
+                        <div class="flow-arrow">&rarr;</div>
+                        <div class="p-3 bg-yellow-100 rounded-md shadow m-2">小売業者</div>
+                        <div class="flow-arrow">&rarr;</div>
+                        <div class="p-3 bg-yellow-100 rounded-md shadow m-2">消費者</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-12 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-orange-600 mb-1">シミュレーション1：現在の価格設定（仮定）</h2>
+                <p class="text-sm text-gray-500 mb-6">卸売業者が5kg袋を小売店に販売する場合の損益を試算します。</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
+                    <div>
+                        <p class="stat-value">3,500<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">販売単価 (P) / 5kg</p>
+                    </div>
+                    <div>
+                        <p class="stat-value">3,000<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">仕入単価 (V) / 5kg</p>
+                    </div>
+                    <div>
+                        <p class="stat-value">500<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">限界利益 (M = P-V) / 5kg</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
+                     <div>
+                        <p class="stat-value">1,000<span class="text-lg text-gray-500">袋</span></p>
+                        <p class="stat-label">月間販売数量 (Q)</p>
+                    </div>
+                    <div>
+                        <p class="stat-value">500,000<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">総限界利益 (MQ = M×Q)</p>
+                    </div>
+                     <div>
+                        <p class="stat-value">400,000<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">固定費 (F)</p>
+                    </div>
+                </div>
+
+                <div class="bg-teal-50 p-6 rounded-lg text-center shadow-inner">
+                    <p class="text-lg text-gray-700 mb-2">算出される利益 (G = MQ - F):</p>
+                    <p class="text-5xl font-bold text-teal-600">100,000<span class="text-2xl text-gray-600">円</span></p>
+                    <p class="mt-2 text-md text-gray-600">損益分岐点比率: 80% (固定費40万 ÷ 総限界利益50万)</p>
+                    <p class="mt-3 text-sm text-gray-500">解説：この仮定では、卸売業者は月に1,000袋（5kg）を販売し、固定費40万円を差し引いて10万円の利益を得ています。損益分岐点比率は80%であり、販売数量がこれより20%減少すると赤字になることを示しています。</p>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-xl font-medium text-gray-700 mb-3 text-center">利益構成の可視化</h3>
+                    <p class="text-center text-sm text-gray-600 mb-4">総限界利益と固定費の関係を示します。</p>
+                    <div class="chart-container h-[250px] md:h-[300px]">
+                        <canvas id="currentProfitChart"></canvas>
+                    </div>
+                    <p class="mt-3 text-sm text-gray-500 text-center">このグラフは、総限界利益（MQ）が固定費（F）をどれだけ上回っているかを示しています。差額が利益（G）となります。</p>
+                </div>
+            </section>
+
+            <section class="mb-12 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-orange-600 mb-1">シミュレーション2：価格変動リスク（感度分析）</h2>
+                <p class="text-sm text-gray-500 mb-6">販売単価(P)または仕入単価(V)が100円変動した場合、利益(G)は0円（収支トントン）になります。</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-red-50 p-6 rounded-lg shadow-inner text-center">
+                        <h3 class="text-xl font-semibold text-red-600 mb-2">ケース1: 販売単価(P)が100円下落</h3>
+                        <p class="text-2xl font-bold text-red-500">P: 3,400円 <span class="text-sm text-red-400">(-100円)</span></p>
+                        <p class="text-lg text-gray-700 mt-1">限界利益(M): 400円</p>
+                        <p class="text-lg text-gray-700">総限界利益(MQ): 400,000円</p>
+                        <p class="text-2xl font-bold text-red-500 mt-2">利益(G): 0円</p>
+                    </div>
+                    <div class="bg-red-50 p-6 rounded-lg shadow-inner text-center">
+                        <h3 class="text-xl font-semibold text-red-600 mb-2">ケース2: 仕入単価(V)が100円上昇</h3>
+                        <p class="text-2xl font-bold text-red-500">V: 3,100円 <span class="text-sm text-red-400">(+100円)</span></p>
+                        <p class="text-lg text-gray-700 mt-1">限界利益(M): 400円</p>
+                        <p class="text-lg text-gray-700">総限界利益(MQ): 400,000円</p>
+                        <p class="text-2xl font-bold text-red-500 mt-2">利益(G): 0円</p>
+                    </div>
+                </div>
+                <p class="mt-6 text-md text-gray-700">
+                    解説：この分析は、卸売業の利益が販売価格と仕入れ価格のわずかな変動（このケースでは約3%）に非常に敏感であることを示しています。100円の不利な変動で、現在のシナリオでの10万円の利益が完全に失われてしまいます。これは、数量(Q)や固定費(F)に比べて、PとVの管理が極めて重要であることを意味します。
+                </p>
+            </section>
+
+            <section class="mb-12 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-orange-600 mb-1">シミュレーション3：過去の価格水準（仮定）</h2>
+                <p class="text-sm text-gray-500 mb-6">もし販売単価(P)が2,000円だった時代を仮定し、他の条件（Q、F）は同じで、VがPに合わせて調整されるとします。</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
+                    <div>
+                        <p class="stat-value">2,000<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">販売単価 (P) / 5kg</p>
+                    </div>
+                    <div>
+                        <p class="stat-value">1,600<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">仕入単価 (V) / 5kg (Pの80%と仮定)</p>
+                    </div>
+                    <div>
+                        <p class="stat-value">400<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">限界利益 (M = P-V) / 5kg</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
+                    <div>
+                        <p class="stat-value">1,000<span class="text-lg text-gray-500">袋</span></p>
+                        <p class="stat-label">月間販売数量 (Q) (不変と仮定)</p>
+                    </div>
+                     <div>
+                        <p class="stat-value">400,000<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">総限界利益 (MQ)</p>
+                    </div>
+                    <div>
+                        <p class="stat-value">400,000<span class="text-lg text-gray-500">円</span></p>
+                        <p class="stat-label">固定費 (F) (不変と仮定)</p>
+                    </div>
+                </div>
+                <div class="bg-yellow-50 p-6 rounded-lg text-center shadow-inner">
+                    <p class="text-lg text-gray-700 mb-2">算出される利益 (G = MQ - F):</p>
+                    <p class="text-5xl font-bold text-yellow-500">0<span class="text-2xl text-gray-600">円</span></p>
+                    <p class="mt-2 text-md text-gray-600">この時代は収支トントンだったと推測されます。</p>
+                    <p class="mt-3 text-sm text-gray-500">解説：販売単価が2,000円で、それに応じて仕入単価が1,600円だったと仮定すると、限界利益は400円。販売数量と固定費が現在と同じであれば、利益は0円となり、損益分岐点上で運営していたことになります。</p>
+                </div>
+            </section>
+
+            <section class="mb-12 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-orange-600 mb-1">シミュレーション4：販売単価(P)上昇の影響</h2>
+                <p class="text-sm text-gray-500 mb-6">もし過去の「利益0円」の状態（P=2000円、V=1600円、Q=1000袋、F=40万円）から、仕入単価(V)・数量(Q)・固定費(F)が変わらないまま、販売単価(P)だけが現在の3,500円に上昇したら？</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="text-center p-4 border border-gray-200 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-700">新 販売単価(P)</h3>
+                        <p class="text-3xl font-bold text-purple-600">3,500円</p>
+                    </div>
+                     <div class="text-center p-4 border border-gray-200 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-700">仕入単価(V) (過去基準で不変)</h3>
+                        <p class="text-3xl font-bold text-gray-700">1,600円</p>
+                    </div>
+                </div>
+                 <div class="text-center p-4 border border-gray-200 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700">新 限界利益(M)</h3>
+                    <p class="text-3xl font-bold text-purple-600">1,900円 <span class="text-sm text-gray-500">(3500円 - 1600円)</span></p>
+                </div>
+
+                <div class="bg-purple-50 p-6 rounded-lg text-center shadow-inner">
+                    <p class="text-lg text-gray-700 mb-2">この場合の利益 (G = (1900円 × 1000袋) - 40万円):</p>
+                    <p class="text-5xl font-bold text-purple-700">1,500,000<span class="text-2xl text-gray-600">円</span></p>
+                    <p class="mt-3 text-sm text-gray-500">解説：驚くべきことに、他の条件が過去の「利益0円」時点から変わらず、販売単価だけが1,500円上昇すると、利益は一気に150万円に増加する計算になります。これは、販売単価の上昇分がそのまま限界利益に乗り、固定費が変わらなければ大きな利益増に繋がることを示しています。</p>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-xl font-medium text-gray-700 mb-3 text-center">利益変化の比較</h3>
+                    <p class="text-center text-sm text-gray-600 mb-4">過去の利益0円シナリオと、そこから販売単価のみが上昇した場合の利益を比較します。</p>
+                    <div class="chart-container h-[250px] md:h-[300px]">
+                        <canvas id="priceRiseImpactChart"></canvas>
+                    </div>
+                     <p class="mt-3 text-sm text-gray-500 text-center">このグラフは、販売単価(P)の上昇が、他の条件が一定であれば、いかに大きな利益インパクトをもたらす可能性があるかを示しています。</p>
+                </div>
+            </section>
+
+            <section class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-orange-600 mb-4">結論：価格決定の重要性</h2>
+                <p class="text-gray-700 mb-4">
+                    今回のシミュレーションを通じて、米卸売業の利益が、特に**販売単価(P)と仕入単価(V)のバランス**に大きく左右されることが明らかになりました。これらの価格要素のわずかな変動が利益を大きく動かすため、緻密な価格管理が極めて重要です。
+                </p>
+                <p class="text-gray-700 mb-4">
+                    また、仮に過去には低い利益率で運営されていたとしても、市場の販売価格が上昇する一方で仕入れ価格の上昇がそれに追いつかない場合（または企業努力で抑えられた場合）、中間流通業者は大きな利益改善の機会を得る可能性があることも示唆されました。
+                </p>
+                <p class="text-gray-700">
+                    この分析は簡略化されたモデルに基づきますが、価格戦略とコスト構造の理解がビジネスの成功に不可欠であることを示しています。
+                </p>
+            </section>
+        </main>
+
+        <footer class="mt-12 text-center text-sm text-gray-500">
+            <p>&copy; <span id="currentYear"></span> 卸売業損益分析レポート. All rights reserved.</p>
+            <p class="mt-1">注意：このインフォグラフィックは提供されたデータに基づくシミュレーションであり、特定の企業や実際の市場状況を正確に表すものではありません。</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Chart.js Label Wrapping Function (as per requirements)
+        function wrapChartLabels(label, maxWidth) {
+            if (typeof label !== 'string' || label.length <= maxWidth) {
+                return label;
+            }
+            const words = label.split(''); // Split by char for Japanese to ensure length constraint
+            let lines = [];
+            let currentLine = '';
+            for (const char of words) {
+                if ((currentLine + char).length > maxWidth && currentLine.length > 0) {
+                    lines.push(currentLine);
+                    currentLine = char;
+                } else {
+                    currentLine += char;
+                }
+            }
+            lines.push(currentLine);
+            return lines.filter(line => line.length > 0);
+        }
+        
+        // Chart.js Tooltip Configuration (as per requirements)
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+
+        // Chart 1: Current Profit Chart
+        const ctxCurrentProfit = document.getElementById('currentProfitChart').getContext('2d');
+        new Chart(ctxCurrentProfit, {
+            type: 'bar',
+            data: {
+                labels: ['総限界利益 (MQ)', '固定費 (F)'],
+                datasets: [{
+                    label: '金額 (円)',
+                    data: [500000, 400000],
+                    backgroundColor: [
+                        'rgba(0, 128, 128, 0.6)', // Energetic Teal
+                        'rgba(255, 140, 0, 0.6)'  // Energetic Orange
+                    ],
+                    borderColor: [
+                        'rgba(0, 128, 128, 1)',
+                        'rgba(255, 140, 0, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '金額 (円)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback,
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY', minimumFractionDigits: 0 }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                    title: {
+                        display: false, // Main title is above section
+                        text: '現在の利益構成'
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Price Rise Impact Chart
+        const ctxPriceRiseImpact = document.getElementById('priceRiseImpactChart').getContext('2d');
+        new Chart(ctxPriceRiseImpact, {
+            type: 'bar',
+            data: {
+                labels: [
+                    wrapChartLabels('過去(利益0円) P=2000円', 16), 
+                    wrapChartLabels('販売単価上昇後 P=3500円 (V,Q,Fは過去基準)', 16)
+                ],
+                datasets: [{
+                    label: '利益 (G) (円)',
+                    data: [0, 1500000],
+                     backgroundColor: [
+                        'rgba(255, 215, 0, 0.6)', // Energetic Yellow
+                        'rgba(147, 112, 219, 0.6)' // Energetic Purple
+                    ],
+                    borderColor: [
+                        'rgba(255, 215, 0, 1)',
+                        'rgba(147, 112, 219, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '利益 (G) (円)'
+                        },
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY', minimumFractionDigits:0 }).format(value);
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                         display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                           title: tooltipTitleCallback,
+                           label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                     label += new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY', minimumFractionDigits: 0 }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                     title: {
+                        display: false, // Main title is above section
+                        text: '販売単価上昇による利益インパクト'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
